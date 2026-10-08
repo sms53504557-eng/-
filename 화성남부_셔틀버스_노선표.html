@@ -1,0 +1,1214 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>화성남부 셔틀버스 운행 노선표 (1호차 ~ 7호차)</title>
+    <style>
+        :root {
+            --primary: #1e40af;
+            --primary-light: #eff6ff;
+            --primary-border: #93c5fd;
+            --accent: #0284c7;
+            --text-main: #1f2937;
+            --text-muted: #4b5563;
+            --bg-page: #f8fafc;
+            --bg-card: #ffffff;
+            --border-color: #cbd5e1;
+            --table-header: #f1f5f9;
+        }
+
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+            font-family: 'Pretendard', -apple-system, BlinkMacSystemFont, 'Malgun Gothic', '맑은 고딕', helvetica, sans-serif;
+        }
+
+        body {
+            background-color: var(--bg-page);
+            color: var(--text-main);
+            padding: 24px;
+            line-height: 1.5;
+        }
+
+        .container {
+            max-width: 1100px;
+            margin: 0 auto;
+        }
+
+        /* 컨트롤 패널 (상단 메뉴 바) */
+        .control-panel {
+            background: white;
+            padding: 16px 20px;
+            border-radius: 12px;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.06);
+            display: flex;
+            flex-wrap: wrap;
+            justify-content: space-between;
+            align-items: center;
+            gap: 12px;
+            margin-bottom: 20px;
+        }
+
+        .system-title {
+            font-size: 20px;
+            font-weight: 700;
+            color: var(--primary);
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .btn-group {
+            display: flex;
+            gap: 8px;
+            flex-wrap: wrap;
+        }
+
+        .btn {
+            display: inline-flex;
+            align-items: center;
+            gap: 6px;
+            padding: 8px 14px;
+            border-radius: 6px;
+            font-size: 14px;
+            font-weight: 600;
+            cursor: pointer;
+            border: 1px solid transparent;
+            transition: all 0.2s;
+        }
+
+        .btn-primary {
+            background-color: var(--primary);
+            color: white;
+        }
+        .btn-primary:hover {
+            background-color: #1d4ed8;
+        }
+
+        .btn-secondary {
+            background-color: white;
+            color: #334155;
+            border-color: #cbd5e1;
+        }
+        .btn-secondary:hover {
+            background-color: #f1f5f9;
+        }
+
+        .btn-edit {
+            background-color: #059669;
+            color: white;
+        }
+        .btn-edit.active {
+            background-color: #dc2626;
+        }
+
+        /* 탭 네비게이션 */
+        .tab-nav {
+            display: flex;
+            background: #e2e8f0;
+            padding: 4px;
+            border-radius: 10px;
+            gap: 4px;
+            margin-bottom: 20px;
+            overflow-x: auto;
+        }
+
+        .tab-btn {
+            flex: 1;
+            min-width: 90px;
+            padding: 10px 14px;
+            text-align: center;
+            background: transparent;
+            border: none;
+            border-radius: 8px;
+            font-size: 15px;
+            font-weight: 600;
+            color: #475569;
+            cursor: pointer;
+            transition: all 0.2s;
+            white-space: nowrap;
+        }
+
+        .tab-btn.active {
+            background: white;
+            color: var(--primary);
+            box-shadow: 0 2px 6px rgba(0,0,0,0.08);
+        }
+
+        .tab-btn:hover:not(.active) {
+            background: rgba(255, 255, 255, 0.5);
+            color: #1e293b;
+        }
+
+        /* 메인 노선표 카드 */
+        .bus-sheet {
+            background: white;
+            border-radius: 12px;
+            padding: 32px;
+            box-shadow: 0 4px 16px rgba(0,0,0,0.05);
+            margin-bottom: 24px;
+        }
+
+        .sheet-header {
+            border-bottom: 2px solid var(--primary);
+            padding-bottom: 16px;
+            margin-bottom: 20px;
+            display: flex;
+            justify-content: space-between;
+            align-items: flex-end;
+            flex-wrap: wrap;
+            gap: 12px;
+        }
+
+        .sheet-title-group h2 {
+            font-size: 26px;
+            color: var(--primary);
+            font-weight: 800;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .sheet-badge {
+            background-color: #dbeafe;
+            color: var(--primary);
+            font-size: 13px;
+            font-weight: 600;
+            padding: 3px 10px;
+            border-radius: 20px;
+        }
+
+        .sheet-subtitle {
+            font-size: 14px;
+            color: var(--text-muted);
+            margin-top: 4px;
+        }
+
+        .bus-info-card {
+            background-color: var(--primary-light);
+            border: 1px solid var(--primary-border);
+            border-radius: 8px;
+            padding: 12px 18px;
+            display: flex;
+            flex-wrap: wrap;
+            gap: 20px;
+            font-size: 14px;
+            margin-bottom: 24px;
+        }
+
+        .bus-info-card .info-item {
+            display: flex;
+            gap: 8px;
+        }
+        .bus-info-card .info-label {
+            font-weight: 600;
+            color: #1e3a8a;
+        }
+
+        /* 노선 요약 흐름도 */
+        .route-flow-box {
+            margin-bottom: 24px;
+            padding: 16px;
+            background: #f8fafc;
+            border: 1px dashed #cbd5e1;
+            border-radius: 8px;
+        }
+        .route-flow-title {
+            font-size: 13px;
+            font-weight: 700;
+            color: #475569;
+            margin-bottom: 8px;
+        }
+        .route-flow-items {
+            display: flex;
+            flex-wrap: wrap;
+            align-items: center;
+            gap: 6px;
+            font-size: 13px;
+            font-weight: 500;
+            color: #334155;
+        }
+        .flow-node {
+            background: white;
+            padding: 4px 10px;
+            border-radius: 4px;
+            border: 1px solid #cbd5e1;
+        }
+        .flow-arrow {
+            color: #94a3b8;
+            font-weight: bold;
+        }
+
+        /* 테이블 스타일 */
+        .table-responsive {
+            overflow-x: auto;
+            margin-bottom: 24px;
+        }
+
+        table.timetable {
+            width: 100%;
+            border-collapse: collapse;
+            font-size: 14px;
+            text-align: center;
+        }
+
+        table.timetable th, table.timetable td {
+            border: 1px solid var(--border-color);
+            padding: 10px 8px;
+        }
+
+        table.timetable th {
+            background-color: var(--table-header);
+            color: #1e293b;
+            font-weight: 700;
+        }
+
+        table.timetable tr:hover {
+            background-color: #f8fafc;
+        }
+
+        table.timetable .station-name {
+            font-weight: 600;
+            text-align: left;
+            padding-left: 12px;
+        }
+
+        table.timetable .station-desc {
+            font-size: 12px;
+            color: var(--text-muted);
+            text-align: left;
+            padding-left: 12px;
+        }
+
+        /* 안내 문구 박스 */
+        .notice-box {
+            background-color: #fefce8;
+            border: 1px solid #fde047;
+            border-radius: 8px;
+            padding: 16px 20px;
+            font-size: 13px;
+            color: #713f12;
+            line-height: 1.6;
+        }
+
+        .notice-box h4 {
+            font-size: 14px;
+            font-weight: 700;
+            margin-bottom: 6px;
+            display: flex;
+            align-items: center;
+            gap: 6px;
+        }
+
+        .editable-mode-active [contenteditable="true"] {
+            outline: 2px dashed #3b82f6 !important;
+            background-color: #eff6ff !important;
+            border-radius: 3px;
+        }
+
+        .edit-help-banner {
+            display: none;
+            background: #dcfce7;
+            border: 1px solid #86efac;
+            color: #166534;
+            padding: 10px 16px;
+            border-radius: 8px;
+            margin-bottom: 16px;
+            font-size: 14px;
+            font-weight: 600;
+        }
+
+        /* 인쇄 미디어 쿼리 */
+        @media print {
+            body {
+                background: white;
+                padding: 0;
+            }
+            .control-panel, .tab-nav, .edit-help-banner {
+                display: none !important;
+            }
+            .bus-sheet {
+                box-shadow: none;
+                padding: 0;
+                margin: 0;
+                page-break-after: always;
+            }
+            .bus-sheet:last-child {
+                page-break-after: auto;
+            }
+            table.timetable th {
+                background-color: #f1f5f9 !important;
+                -webkit-print-color-adjust: exact;
+                print-color-adjust: exact;
+            }
+            .bus-info-card {
+                background-color: #f8fafc !important;
+                border: 1px solid #ccc !important;
+                -webkit-print-color-adjust: exact;
+                print-color-adjust: exact;
+            }
+        }
+    </style>
+</head>
+<body>
+
+<div class="container">
+    <!-- 상단 컨트롤 버튼 -->
+    <div class="control-panel">
+        <div class="system-title">
+            <span>🚍</span> 화성남부 셔틀버스 노선표 관리 및 출력 시스템
+        </div>
+        <div class="btn-group">
+            <button class="btn btn-edit" id="toggleEditBtn" onclick="toggleEditMode()">✏️ 텍스트 직접 수정하기</button>
+            <button class="btn btn-secondary" onclick="exportToCSV()">📥 엑셀(CSV) 다운로드</button>
+            <button class="btn btn-secondary" onclick="showAllBuses()">📋 전 호차 한번에 보기 (인쇄용)</button>
+            <button class="btn btn-primary" onclick="window.print()">🖨️ 노선표 인쇄 (A4 출력)</button>
+        </div>
+    </div>
+
+    <!-- 수정 모드 안내 알림 -->
+    <div class="edit-help-banner" id="editBanner">
+        💡 <b>직접 수정 모드 활성화됨:</b> 화면의 정류장명, 시간, 기사님 연락처 등을 마우스로 클릭하여 원하는 내용으로 바로 수정할 수 있습니다. 수정을 마치면 다시 '수정 완료' 버튼을 눌러주세요.
+    </div>
+
+    <!-- 호차 선택 탭 -->
+    <div class="tab-nav" id="tabNav">
+        <button class="tab-btn active" onclick="selectTab(1)">1호차</button>
+        <button class="tab-btn" onclick="selectTab(2)">2호차</button>
+        <button class="tab-btn" onclick="selectTab(3)">3호차</button>
+        <button class="tab-btn" onclick="selectTab(4)">4호차</button>
+        <button class="tab-btn" onclick="selectTab(5)">5호차</button>
+        <button class="tab-btn" onclick="selectTab(6)">6호차</button>
+        <button class="tab-btn" onclick="selectTab(7)">7호차</button>
+    </div>
+
+    <!-- 1호차 노선표 -->
+    <div class="bus-sheet" id="busSheet1">
+        <div class="sheet-header">
+            <div class="sheet-title-group">
+                <h2>1호차 운행 노선표 <span class="sheet-badge">우정·조암 방면</span></h2>
+                <div class="sheet-subtitle">화성남부 셔틀버스 운행 시간표 (평일 운행 / 토·일·공휴일 휴무)</div>
+            </div>
+            <div style="font-size: 13px; color: #64748b;">기준일: 2026년</div>
+        </div>
+
+        <div class="bus-info-card">
+            <div class="info-item"><span class="info-label">차량번호:</span> <span contenteditable="false">경기 70바 1001</span></div>
+            <div class="info-item"><span class="info-label">담당 기사:</span> <span contenteditable="false">홍길동 (010-1234-5671)</span></div>
+            <div class="info-item"><span class="info-label">주요경유지:</span> <span contenteditable="false">조암터미널 → 우정읍사무소 → 매향리 → 원안리 → 복지관</span></div>
+        </div>
+
+        <div class="route-flow-box">
+            <div class="route-flow-title">📍 주요 노선 경로</div>
+            <div class="route-flow-items">
+                <span class="flow-node">조암터미널</span> <span class="flow-arrow">➔</span>
+                <span class="flow-node">우정읍행정복지센터</span> <span class="flow-arrow">➔</span>
+                <span class="flow-node">매향리 입구</span> <span class="flow-arrow">➔</span>
+                <span class="flow-node">원안리 마을회관</span> <span class="flow-arrow">➔</span>
+                <span class="flow-node">석천리 입구</span> <span class="flow-arrow">➔</span>
+                <span class="flow-node">화성남부 (도착)</span>
+            </div>
+        </div>
+
+        <div class="table-responsive">
+            <table class="timetable">
+                <thead>
+                    <tr>
+                        <th style="width: 60px;">순번</th>
+                        <th style="width: 200px;">정류장명</th>
+                        <th>상세 승하차 위치</th>
+                        <th style="width: 110px;">1회차 (오전)</th>
+                        <th style="width: 110px;">2회차 (오전)</th>
+                        <th style="width: 110px;">3회차 (오후1)</th>
+                        <th style="width: 110px;">4회차 (오후2)</th>
+                        <th style="width: 100px;">비고</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr>
+                        <td>1</td>
+                        <td class="station-name">조암터미널</td>
+                        <td class="station-desc">터미널 건너편 버스정류장</td>
+                        <td>08:30</td>
+                        <td>10:00</td>
+                        <td>13:10</td>
+                        <td>16:10</td>
+                        <td>출발지</td>
+                    </tr>
+                    <tr>
+                        <td>2</td>
+                        <td class="station-name">우정읍행정복지센터</td>
+                        <td class="station-desc">농협 앞 버스승강장</td>
+                        <td>08:35</td>
+                        <td>10:05</td>
+                        <td>13:15</td>
+                        <td>16:15</td>
+                        <td></td>
+                    </tr>
+                    <tr>
+                        <td>3</td>
+                        <td class="station-name">원안리 마을회관</td>
+                        <td class="station-desc">마을회관 입구 표지판 앞</td>
+                        <td>08:45</td>
+                        <td>10:15</td>
+                        <td>13:25</td>
+                        <td>16:25</td>
+                        <td></td>
+                    </tr>
+                    <tr>
+                        <td>4</td>
+                        <td class="station-name">석천리 입구</td>
+                        <td class="station-desc">삼거리 편의점 앞</td>
+                        <td>08:52</td>
+                        <td>10:22</td>
+                        <td>13:32</td>
+                        <td>16:32</td>
+                        <td></td>
+                    </tr>
+                    <tr>
+                        <td>5</td>
+                        <td class="station-name">어은리 입구</td>
+                        <td class="station-desc">시내버스 정류장</td>
+                        <td>09:00</td>
+                        <td>10:30</td>
+                        <td>13:40</td>
+                        <td>16:40</td>
+                        <td></td>
+                    </tr>
+                    <tr>
+                        <td>6</td>
+                        <td class="station-name">화성남부 (도착)</td>
+                        <td class="station-desc">복지관/센터 본관 앞 정문</td>
+                        <td>09:15</td>
+                        <td>10:45</td>
+                        <td>13:55</td>
+                        <td>16:55</td>
+                        <td>도착지</td>
+                    </tr>
+                </tbody>
+            </table>
+        </div>
+
+        <div class="notice-box">
+            <h4>⚠️ 셔틀버스 이용자 준수사항</h4>
+            <ul>
+                <li>출발 예정 시각 5분 전까지 정류장에 도착하여 대기해 주시기 바랍니다.</li>
+                <li>도로 교통 상황, 기상 악화(우천, 폭설 등)에 따라 운행 시간이 5~10분 지연될 수 있습니다.</li>
+                <li>승·하차 시 안전사고 예방을 위해 버스가 완전히 정차한 후 이동해 주십시오.</li>
+            </ul>
+        </div>
+    </div>
+
+    <!-- 2호차 노선표 -->
+    <div class="bus-sheet" id="busSheet2" style="display: none;">
+        <div class="sheet-header">
+            <div class="sheet-title-group">
+                <h2>2호차 운행 노선표 <span class="sheet-badge">향남·발안 방면</span></h2>
+                <div class="sheet-subtitle">화성남부 셔틀버스 운행 시간표 (평일 운행)</div>
+            </div>
+            <div style="font-size: 13px; color: #64748b;">기준일: 2026년</div>
+        </div>
+
+        <div class="bus-info-card">
+            <div class="info-item"><span class="info-label">차량번호:</span> <span contenteditable="false">경기 70바 1002</span></div>
+            <div class="info-item"><span class="info-label">담당 기사:</span> <span contenteditable="false">김철수 (010-1234-5672)</span></div>
+            <div class="info-item"><span class="info-label">주요경유지:</span> <span contenteditable="false">발안만세시장 → 향남읍사무소 → 향남1지구(홈플러스) → 향남2지구 → 복지관</span></div>
+        </div>
+
+        <div class="route-flow-box">
+            <div class="route-flow-title">📍 주요 노선 경로</div>
+            <div class="route-flow-items">
+                <span class="flow-node">발안만세시장</span> <span class="flow-arrow">➔</span>
+                <span class="flow-node">향남읍행정복지센터</span> <span class="flow-arrow">➔</span>
+                <span class="flow-node">향남홈플러스 앞</span> <span class="flow-arrow">➔</span>
+                <span class="flow-node">향남2지구 중심상가</span> <span class="flow-arrow">➔</span>
+                <span class="flow-node">화성남부 (도착)</span>
+            </div>
+        </div>
+
+        <div class="table-responsive">
+            <table class="timetable">
+                <thead>
+                    <tr>
+                        <th style="width: 60px;">순번</th>
+                        <th style="width: 200px;">정류장명</th>
+                        <th>상세 승하차 위치</th>
+                        <th style="width: 110px;">1회차 (오전)</th>
+                        <th style="width: 110px;">2회차 (오전)</th>
+                        <th style="width: 110px;">3회차 (오후1)</th>
+                        <th style="width: 110px;">4회차 (오후2)</th>
+                        <th style="width: 100px;">비고</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr>
+                        <td>1</td>
+                        <td class="station-name">발안만세시장 입구</td>
+                        <td class="station-desc">시장 공영주차장 맞은편</td>
+                        <td>08:35</td>
+                        <td>10:05</td>
+                        <td>13:10</td>
+                        <td>16:10</td>
+                        <td>출발지</td>
+                    </tr>
+                    <tr>
+                        <td>2</td>
+                        <td class="station-name">향남읍행정복지센터</td>
+                        <td class="station-desc">센터 앞 시내버스 승강장</td>
+                        <td>08:42</td>
+                        <td>10:12</td>
+                        <td>13:17</td>
+                        <td>16:17</td>
+                        <td></td>
+                    </tr>
+                    <tr>
+                        <td>3</td>
+                        <td class="station-name">향남홈플러스 맞은편</td>
+                        <td class="station-desc">육교 밑 버스정류장</td>
+                        <td>08:48</td>
+                        <td>10:18</td>
+                        <td>13:23</td>
+                        <td>16:23</td>
+                        <td></td>
+                    </tr>
+                    <tr>
+                        <td>4</td>
+                        <td class="station-name">향남2지구 중심상가</td>
+                        <td class="station-desc">국민은행 앞 승강장</td>
+                        <td>08:58</td>
+                        <td>10:28</td>
+                        <td>13:33</td>
+                        <td>16:33</td>
+                        <td></td>
+                    </tr>
+                    <tr>
+                        <td>5</td>
+                        <td class="station-name">화성남부 (도착)</td>
+                        <td class="station-desc">복지관/센터 본관 정문 앞</td>
+                        <td>09:15</td>
+                        <td>10:45</td>
+                        <td>13:50</td>
+                        <td>16:50</td>
+                        <td>도착지</td>
+                    </tr>
+                </tbody>
+            </table>
+        </div>
+
+        <div class="notice-box">
+            <h4>⚠️ 셔틀버스 이용자 준수사항</h4>
+            <ul>
+                <li>출발 예정 시각 5분 전까지 정류장에 도착하여 대기해 주시기 바랍니다.</li>
+                <li>노선 및 정류장은 센터 사정에 의해 일부 조정될 수 있습니다.</li>
+            </ul>
+        </div>
+    </div>
+
+    <!-- 3호차 노선표 -->
+    <div class="bus-sheet" id="busSheet3" style="display: none;">
+        <div class="sheet-header">
+            <div class="sheet-title-group">
+                <h2>3호차 운행 노선표 <span class="sheet-badge">양감 방면</span></h2>
+                <div class="sheet-subtitle">화성남부 셔틀버스 운행 시간표 (평일 운행)</div>
+            </div>
+            <div style="font-size: 13px; color: #64748b;">기준일: 2026년</div>
+        </div>
+
+        <div class="bus-info-card">
+            <div class="info-item"><span class="info-label">차량번호:</span> <span contenteditable="false">경기 70바 1003</span></div>
+            <div class="info-item"><span class="info-label">담당 기사:</span> <span contenteditable="false">이영희 (010-1234-5673)</span></div>
+            <div class="info-item"><span class="info-label">주요경유지:</span> <span contenteditable="false">신왕리 → 송산리 → 양감면사무소 → 사창리 → 복지관</span></div>
+        </div>
+
+        <div class="route-flow-box">
+            <div class="route-flow-title">📍 주요 노선 경로</div>
+            <div class="route-flow-items">
+                <span class="flow-node">신왕리 마을회관</span> <span class="flow-arrow">➔</span>
+                <span class="flow-node">송산리 입구</span> <span class="flow-arrow">➔</span>
+                <span class="flow-node">양감면행정복지센터</span> <span class="flow-arrow">➔</span>
+                <span class="flow-node">사창리 사거리</span> <span class="flow-arrow">➔</span>
+                <span class="flow-node">화성남부 (도착)</span>
+            </div>
+        </div>
+
+        <div class="table-responsive">
+            <table class="timetable">
+                <thead>
+                    <tr>
+                        <th style="width: 60px;">순번</th>
+                        <th style="width: 200px;">정류장명</th>
+                        <th>상세 승하차 위치</th>
+                        <th style="width: 110px;">1회차 (오전)</th>
+                        <th style="width: 110px;">2회차 (오전)</th>
+                        <th style="width: 110px;">3회차 (오후1)</th>
+                        <th style="width: 110px;">4회차 (오후2)</th>
+                        <th style="width: 100px;">비고</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr>
+                        <td>1</td>
+                        <td class="station-name">신왕리 마을회관</td>
+                        <td class="station-desc">회관 앞 정자 부근</td>
+                        <td>08:30</td>
+                        <td>10:00</td>
+                        <td>13:10</td>
+                        <td>16:10</td>
+                        <td>출발지</td>
+                    </tr>
+                    <tr>
+                        <td>2</td>
+                        <td class="station-name">송산리 입구</td>
+                        <td class="station-desc">버스정류장 표지판 앞</td>
+                        <td>08:40</td>
+                        <td>10:10</td>
+                        <td>13:20</td>
+                        <td>16:20</td>
+                        <td></td>
+                    </tr>
+                    <tr>
+                        <td>3</td>
+                        <td class="station-name">양감면행정복지센터</td>
+                        <td class="station-desc">면사무소 정문 입구</td>
+                        <td>08:50</td>
+                        <td>10:20</td>
+                        <td>13:30</td>
+                        <td>16:30</td>
+                        <td></td>
+                    </tr>
+                    <tr>
+                        <td>4</td>
+                        <td class="station-name">사창리 사거리</td>
+                        <td class="station-desc">농협 창고 앞</td>
+                        <td>09:00</td>
+                        <td>10:30</td>
+                        <td>13:40</td>
+                        <td>16:40</td>
+                        <td></td>
+                    </tr>
+                    <tr>
+                        <td>5</td>
+                        <td class="station-name">화성남부 (도착)</td>
+                        <td class="station-desc">복지관/센터 본관 앞</td>
+                        <td>09:15</td>
+                        <td>10:45</td>
+                        <td>13:55</td>
+                        <td>16:55</td>
+                        <td>도착지</td>
+                    </tr>
+                </tbody>
+            </table>
+        </div>
+
+        <div class="notice-box">
+            <h4>⚠️ 셔틀버스 이용자 준수사항</h4>
+            <ul>
+                <li>출발 예정 시각 5분 전까지 정류장에 도착하여 대기해 주시기 바랍니다.</li>
+                <li>도로 사정 및 기상 상황에 따라 도착 시간이 변경될 수 있습니다.</li>
+            </ul>
+        </div>
+    </div>
+
+    <!-- 4호차 노선표 -->
+    <div class="bus-sheet" id="busSheet4" style="display: none;">
+        <div class="sheet-header">
+            <div class="sheet-title-group">
+                <h2>4호차 운행 노선표 <span class="sheet-badge">팔탄 방면</span></h2>
+                <div class="sheet-subtitle">화성남부 셔틀버스 운행 시간표 (평일 운행)</div>
+            </div>
+            <div style="font-size: 13px; color: #64748b;">기준일: 2026년</div>
+        </div>
+
+        <div class="bus-info-card">
+            <div class="info-item"><span class="info-label">차량번호:</span> <span contenteditable="false">경기 70바 1004</span></div>
+            <div class="info-item"><span class="info-label">담당 기사:</span> <span contenteditable="false">박민수 (010-1234-5674)</span></div>
+            <div class="info-item"><span class="info-label">주요경유지:</span> <span contenteditable="false">구장리 → 팔탄면사무소 → 하저리 → 율암리 → 복지관</span></div>
+        </div>
+
+        <div class="route-flow-box">
+            <div class="route-flow-title">📍 주요 노선 경로</div>
+            <div class="route-flow-items">
+                <span class="flow-node">구장사거리</span> <span class="flow-arrow">➔</span>
+                <span class="flow-node">팔탄면행정복지센터</span> <span class="flow-arrow">➔</span>
+                <span class="flow-node">하저리 마을회관</span> <span class="flow-arrow">➔</span>
+                <span class="flow-node">율암온천 입구</span> <span class="flow-arrow">➔</span>
+                <span class="flow-node">화성남부 (도착)</span>
+            </div>
+        </div>
+
+        <div class="table-responsive">
+            <table class="timetable">
+                <thead>
+                    <tr>
+                        <th style="width: 60px;">순번</th>
+                        <th style="width: 200px;">정류장명</th>
+                        <th>상세 승하차 위치</th>
+                        <th style="width: 110px;">1회차 (오전)</th>
+                        <th style="width: 110px;">2회차 (오전)</th>
+                        <th style="width: 110px;">3회차 (오후1)</th>
+                        <th style="width: 110px;">4회차 (오후2)</th>
+                        <th style="width: 100px;">비고</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr>
+                        <td>1</td>
+                        <td class="station-name">구장사거리</td>
+                        <td class="station-desc">농협 하나로마트 앞</td>
+                        <td>08:35</td>
+                        <td>10:05</td>
+                        <td>13:10</td>
+                        <td>16:10</td>
+                        <td>출발지</td>
+                    </tr>
+                    <tr>
+                        <td>2</td>
+                        <td class="station-name">팔탄면행정복지센터</td>
+                        <td class="station-desc">복지센터 정문 앞 버스베이</td>
+                        <td>08:43</td>
+                        <td>10:13</td>
+                        <td>13:18</td>
+                        <td>16:18</td>
+                        <td></td>
+                    </tr>
+                    <tr>
+                        <td>3</td>
+                        <td class="station-name">하저리 마을회관</td>
+                        <td class="station-desc">마을회관 버스정류장</td>
+                        <td>08:52</td>
+                        <td>10:22</td>
+                        <td>13:27</td>
+                        <td>16:27</td>
+                        <td></td>
+                    </tr>
+                    <tr>
+                        <td>4</td>
+                        <td class="station-name">율암온천 삼거리</td>
+                        <td class="station-desc">삼거리 편의점 맞은편</td>
+                        <td>09:02</td>
+                        <td>10:32</td>
+                        <td>13:37</td>
+                        <td>16:37</td>
+                        <td></td>
+                    </tr>
+                    <tr>
+                        <td>5</td>
+                        <td class="station-name">화성남부 (도착)</td>
+                        <td class="station-desc">복지관/센터 본관 앞</td>
+                        <td>09:15</td>
+                        <td>10:45</td>
+                        <td>13:50</td>
+                        <td>16:50</td>
+                        <td>도착지</td>
+                    </tr>
+                </tbody>
+            </table>
+        </div>
+
+        <div class="notice-box">
+            <h4>⚠️ 셔틀버스 이용자 준수사항</h4>
+            <ul>
+                <li>출발 예정 시각 5분 전까지 정류장에 도착하여 대기해 주시기 바랍니다.</li>
+                <li>승객 안전을 위해 차량 내에서는 반드시 안전벨트를 착용해 주십시오.</li>
+            </ul>
+        </div>
+    </div>
+
+    <!-- 5호차 노선표 -->
+    <div class="bus-sheet" id="busSheet5" style="display: none;">
+        <div class="sheet-header">
+            <div class="sheet-title-group">
+                <h2>5호차 운행 노선표 <span class="sheet-badge">정남 방면</span></h2>
+                <div class="sheet-subtitle">화성남부 셔틀버스 운행 시간표 (평일 운행)</div>
+            </div>
+            <div style="font-size: 13px; color: #64748b;">기준일: 2026년</div>
+        </div>
+
+        <div class="bus-info-card">
+            <div class="info-item"><span class="info-label">차량번호:</span> <span contenteditable="false">경기 70바 1005</span></div>
+            <div class="info-item"><span class="info-label">담당 기사:</span> <span contenteditable="false">최동석 (010-1234-5675)</span></div>
+            <div class="info-item"><span class="info-label">주요경유지:</span> <span contenteditable="false">발산리 → 정남면사무소 → 문학리 → 신리 → 복지관</span></div>
+        </div>
+
+        <div class="route-flow-box">
+            <div class="route-flow-title">📍 주요 노선 경로</div>
+            <div class="route-flow-items">
+                <span class="flow-node">발산리 마을입구</span> <span class="flow-arrow">➔</span>
+                <span class="flow-node">정남면행정복지센터</span> <span class="flow-arrow">➔</span>
+                <span class="flow-node">문학리 사거리</span> <span class="flow-arrow">➔</span>
+                <span class="flow-node">신리 입구</span> <span class="flow-arrow">➔</span>
+                <span class="flow-node">화성남부 (도착)</span>
+            </div>
+        </div>
+
+        <div class="table-responsive">
+            <table class="timetable">
+                <thead>
+                    <tr>
+                        <th style="width: 60px;">순번</th>
+                        <th style="width: 200px;">정류장명</th>
+                        <th>상세 승하차 위치</th>
+                        <th style="width: 110px;">1회차 (오전)</th>
+                        <th style="width: 110px;">2회차 (오전)</th>
+                        <th style="width: 110px;">3회차 (오후1)</th>
+                        <th style="width: 110px;">4회차 (오후2)</th>
+                        <th style="width: 100px;">비고</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr>
+                        <td>1</td>
+                        <td class="station-name">발산리 마을입구</td>
+                        <td class="station-desc">마을회관 앞 버스승강장</td>
+                        <td>08:30</td>
+                        <td>10:00</td>
+                        <td>13:10</td>
+                        <td>16:10</td>
+                        <td>출발지</td>
+                    </tr>
+                    <tr>
+                        <td>2</td>
+                        <td class="station-name">정남면행정복지센터</td>
+                        <td class="station-desc">농협 앞 버스정류장</td>
+                        <td>08:40</td>
+                        <td>10:10</td>
+                        <td>13:20</td>
+                        <td>16:20</td>
+                        <td></td>
+                    </tr>
+                    <tr>
+                        <td>3</td>
+                        <td class="station-name">문학리 사거리</td>
+                        <td class="station-desc">문학보건진료소 앞</td>
+                        <td>08:50</td>
+                        <td>10:20</td>
+                        <td>13:30</td>
+                        <td>16:30</td>
+                        <td></td>
+                    </tr>
+                    <tr>
+                        <td>4</td>
+                        <td class="station-name">신리 입구</td>
+                        <td class="station-desc">신리교차로 시내버스 정류장</td>
+                        <td>09:00</td>
+                        <td>10:30</td>
+                        <td>13:40</td>
+                        <td>16:40</td>
+                        <td></td>
+                    </tr>
+                    <tr>
+                        <td>5</td>
+                        <td class="station-name">화성남부 (도착)</td>
+                        <td class="station-desc">복지관/센터 본관 앞</td>
+                        <td>09:15</td>
+                        <td>10:45</td>
+                        <td>13:55</td>
+                        <td>16:55</td>
+                        <td>도착지</td>
+                    </tr>
+                </tbody>
+            </table>
+        </div>
+
+        <div class="notice-box">
+            <h4>⚠️ 셔틀버스 이용자 준수사항</h4>
+            <ul>
+                <li>출발 예정 시각 5분 전까지 정류장에 도착하여 대기해 주시기 바랍니다.</li>
+                <li>승객 안전을 위해 버스 내 취식은 금지되어 있습니다.</li>
+            </ul>
+        </div>
+    </div>
+
+    <!-- 6호차 노선표 -->
+    <div class="bus-sheet" id="busSheet6" style="display: none;">
+        <div class="sheet-header">
+            <div class="sheet-title-group">
+                <h2>6호차 운행 노선표 <span class="sheet-badge">장안·우정 순환 방면</span></h2>
+                <div class="sheet-subtitle">화성남부 셔틀버스 운행 시간표 (평일 운행)</div>
+            </div>
+            <div style="font-size: 13px; color: #64748b;">기준일: 2026년</div>
+        </div>
+
+        <div class="bus-info-card">
+            <div class="info-item"><span class="info-label">차량번호:</span> <span contenteditable="false">경기 70바 1006</span></div>
+            <div class="info-item"><span class="info-label">담당 기사:</span> <span contenteditable="false">정상호 (010-1234-5676)</span></div>
+            <div class="info-item"><span class="info-label">주요경유지:</span> <span contenteditable="false">장안면사무소 → 사곡리 → 어은삼거리 → 덕다리 → 복지관</span></div>
+        </div>
+
+        <div class="route-flow-box">
+            <div class="route-flow-title">📍 주요 노선 경로</div>
+            <div class="route-flow-items">
+                <span class="flow-node">장안면행정복지센터</span> <span class="flow-arrow">➔</span>
+                <span class="flow-node">사곡리 마을회관</span> <span class="flow-arrow">➔</span>
+                <span class="flow-node">어은삼거리</span> <span class="flow-arrow">➔</span>
+                <span class="flow-node">덕다리 입구</span> <span class="flow-arrow">➔</span>
+                <span class="flow-node">화성남부 (도착)</span>
+            </div>
+        </div>
+
+        <div class="table-responsive">
+            <table class="timetable">
+                <thead>
+                    <tr>
+                        <th style="width: 60px;">순번</th>
+                        <th style="width: 200px;">정류장명</th>
+                        <th>상세 승하차 위치</th>
+                        <th style="width: 110px;">1회차 (오전)</th>
+                        <th style="width: 110px;">2회차 (오전)</th>
+                        <th style="width: 110px;">3회차 (오후1)</th>
+                        <th style="width: 110px;">4회차 (오후2)</th>
+                        <th style="width: 100px;">비고</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr>
+                        <td>1</td>
+                        <td class="station-name">장안면행정복지센터</td>
+                        <td class="station-desc">면사무소 앞 주차장 입구</td>
+                        <td>08:35</td>
+                        <td>10:05</td>
+                        <td>13:10</td>
+                        <td>16:10</td>
+                        <td>출발지</td>
+                    </tr>
+                    <tr>
+                        <td>2</td>
+                        <td class="station-name">사곡리 마을회관</td>
+                        <td class="station-desc">회관 정문 앞</td>
+                        <td>08:44</td>
+                        <td>10:14</td>
+                        <td>13:19</td>
+                        <td>16:19</td>
+                        <td></td>
+                    </tr>
+                    <tr>
+                        <td>3</td>
+                        <td class="station-name">어은삼거리</td>
+                        <td class="station-desc">마트 앞 시내버스 정류장</td>
+                        <td>08:53</td>
+                        <td>10:23</td>
+                        <td>13:28</td>
+                        <td>16:28</td>
+                        <td></td>
+                    </tr>
+                    <tr>
+                        <td>4</td>
+                        <td class="station-name">덕다리 입구</td>
+                        <td class="station-desc">마을 표지석 맞은편</td>
+                        <td>09:02</td>
+                        <td>10:32</td>
+                        <td>13:37</td>
+                        <td>16:37</td>
+                        <td></td>
+                    </tr>
+                    <tr>
+                        <td>5</td>
+                        <td class="station-name">화성남부 (도착)</td>
+                        <td class="station-desc">복지관/센터 본관 앞</td>
+                        <td>09:15</td>
+                        <td>10:45</td>
+                        <td>13:50</td>
+                        <td>16:50</td>
+                        <td>도착지</td>
+                    </tr>
+                </tbody>
+            </table>
+        </div>
+
+        <div class="notice-box">
+            <h4>⚠️ 셔틀버스 이용자 준수사항</h4>
+            <ul>
+                <li>출발 예정 시각 5분 전까지 정류장에 도착하여 대기해 주시기 바랍니다.</li>
+                <li>정차 위치 외에는 정차하지 않으므로 안전한 승하차 지점을 이용해 주십시오.</li>
+            </ul>
+        </div>
+    </div>
+
+    <!-- 7호차 노선표 -->
+    <div class="bus-sheet" id="busSheet7" style="display: none;">
+        <div class="sheet-header">
+            <div class="sheet-title-group">
+                <h2>7호차 운행 노선표 <span class="sheet-badge">남부 순환 방면</span></h2>
+                <div class="sheet-subtitle">화성남부 셔틀버스 운행 시간표 (평일 순환 운행)</div>
+            </div>
+            <div style="font-size: 13px; color: #64748b;">기준일: 2026년</div>
+        </div>
+
+        <div class="bus-info-card">
+            <div class="info-item"><span class="info-label">차량번호:</span> <span contenteditable="false">경기 70바 1007</span></div>
+            <div class="info-item"><span class="info-label">담당 기사:</span> <span contenteditable="false">강태호 (010-1234-5677)</span></div>
+            <div class="info-item"><span class="info-label">주요경유지:</span> <span contenteditable="false">향남복합문화센터 → 상신리 → 구문천리 → 발안바이오고 → 복지관</span></div>
+        </div>
+
+        <div class="route-flow-box">
+            <div class="route-flow-title">📍 주요 노선 경로</div>
+            <div class="route-flow-items">
+                <span class="flow-node">향남복합문화센터</span> <span class="flow-arrow">➔</span>
+                <span class="flow-node">상신리 마을회관</span> <span class="flow-arrow">➔</span>
+                <span class="flow-node">구문천리 공단입구</span> <span class="flow-arrow">➔</span>
+                <span class="flow-node">발안바이오고교 앞</span> <span class="flow-arrow">➔</span>
+                <span class="flow-node">화성남부 (도착)</span>
+            </div>
+        </div>
+
+        <div class="table-responsive">
+            <table class="timetable">
+                <thead>
+                    <tr>
+                        <th style="width: 60px;">순번</th>
+                        <th style="width: 200px;">정류장명</th>
+                        <th>상세 승하차 위치</th>
+                        <th style="width: 110px;">1회차 (오전)</th>
+                        <th style="width: 110px;">2회차 (오전)</th>
+                        <th style="width: 110px;">3회차 (오후1)</th>
+                        <th style="width: 110px;">4회차 (오후2)</th>
+                        <th style="width: 100px;">비고</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr>
+                        <td>1</td>
+                        <td class="station-name">향남복합문화센터</td>
+                        <td class="station-desc">센터 주차장 입구 버스베이</td>
+                        <td>08:35</td>
+                        <td>10:05</td>
+                        <td>13:10</td>
+                        <td>16:10</td>
+                        <td>출발지</td>
+                    </tr>
+                    <tr>
+                        <td>2</td>
+                        <td class="station-name">상신리 마을회관</td>
+                        <td class="station-desc">마을회관 앞 시내버스 정류장</td>
+                        <td>08:45</td>
+                        <td>10:15</td>
+                        <td>13:20</td>
+                        <td>16:20</td>
+                        <td></td>
+                    </tr>
+                    <tr>
+                        <td>3</td>
+                        <td class="station-name">구문천리 공단입구</td>
+                        <td class="station-desc">사거리 편의점 앞</td>
+                        <td>08:55</td>
+                        <td>10:25</td>
+                        <td>13:30</td>
+                        <td>16:30</td>
+                        <td></td>
+                    </tr>
+                    <tr>
+                        <td>4</td>
+                        <td class="station-name">발안바이오고교 앞</td>
+                        <td class="station-desc">정문 건너편 버스정류장</td>
+                        <td>09:05</td>
+                        <td>10:35</td>
+                        <td>13:40</td>
+                        <td>16:40</td>
+                        <td></td>
+                    </tr>
+                    <tr>
+                        <td>5</td>
+                        <td class="station-name">화성남부 (도착)</td>
+                        <td class="station-desc">복지관/센터 본관 앞</td>
+                        <td>09:15</td>
+                        <td>10:45</td>
+                        <td>13:50</td>
+                        <td>16:50</td>
+                        <td>도착지</td>
+                    </tr>
+                </tbody>
+            </table>
+        </div>
+
+        <div class="notice-box">
+            <h4>⚠️ 셔틀버스 이용자 준수사항</h4>
+            <ul>
+                <li>출발 예정 시각 5분 전까지 정류장에 도착하여 대기해 주시기 바랍니다.</li>
+                <li>순환 운행 코스로 특정 시간대에는 탑승 인원이 많을 수 있습니다.</li>
+            </ul>
+        </div>
+    </div>
+</div>
+
+<script>
+    let isEditMode = false;
+
+    function selectTab(num) {
+        // 모든 탭 버튼 및 시트 비활성화
+        document.querySelectorAll('.tab-btn').forEach((btn, idx) => {
+            btn.classList.toggle('active', idx === (num - 1));
+        });
+        document.querySelectorAll('.bus-sheet').forEach((sheet, idx) => {
+            sheet.style.display = (idx === (num - 1)) ? 'block' : 'none';
+        });
+    }
+
+    function showAllBuses() {
+        document.querySelectorAll('.tab-btn').forEach(btn => btn.classList.remove('active'));
+        document.querySelectorAll('.bus-sheet').forEach(sheet => {
+            sheet.style.display = 'block';
+        });
+    }
+
+    function toggleEditMode() {
+        isEditMode = !isEditMode;
+        const btn = document.getElementById('toggleEditBtn');
+        const banner = document.getElementById('editBanner');
+        document.body.classList.toggle('editable-mode-active', isEditMode);
+
+        const editables = document.querySelectorAll('td, .station-name, .station-desc, .sheet-title-group h2, .bus-info-card span[contenteditable]');
+        
+        editables.forEach(el => {
+            el.setAttribute('contenteditable', isEditMode ? 'true' : 'false');
+        });
+
+        if (isEditMode) {
+            btn.innerText = '💾 수정 완료 (저장/종료)';
+            btn.classList.add('active');
+            banner.style.display = 'block';
+        } else {
+            btn.innerText = '✏️ 텍스트 직접 수정하기';
+            btn.classList.remove('active');
+            banner.style.display = 'none';
+        }
+    }
+
+    function exportToCSV() {
+        let csvContent = "\uFEFF호차,순번,정류장명,승하차위치,1회차,2회차,3회차,4회차,비고\n";
+        
+        for (let i = 1; i <= 7; i++) {
+            const sheet = document.getElementById('busSheet' + i);
+            if (!sheet) continue;
+            
+            const rows = sheet.querySelectorAll('table.timetable tbody tr');
+            rows.forEach(tr => {
+                const cols = tr.querySelectorAll('td');
+                const rowData = [
+                    `${i}호차`,
+                    cols[0]?.innerText.trim() || '',
+                    `"${(cols[1]?.innerText.trim() || '').replace(/"/g, '""')}"`,
+                    `"${(cols[2]?.innerText.trim() || '').replace(/"/g, '""')}"`,
+                    cols[3]?.innerText.trim() || '',
+                    cols[4]?.innerText.trim() || '',
+                    cols[5]?.innerText.trim() || '',
+                    cols[6]?.innerText.trim() || '',
+                    `"${(cols[7]?.innerText.trim() || '').replace(/"/g, '""')}"`
+                ];
+                csvContent += rowData.join(',') + "\n";
+            });
+        }
+
+        const blob = new Blob([csvContent], { type: 'text/csv;charset=utf-8;' });
+        const url = URL.createObjectURL(blob);
+        const link = document.createElement("a");
+        link.setAttribute("href", url);
+        link.setAttribute("download", "화성남부_셔틀버스_1호차_7호차_노선표.csv");
+        document.body.appendChild(link);
+        link.click();
+        document.body.removeChild(link);
+    }
+</script>
+</body>
+</html>
